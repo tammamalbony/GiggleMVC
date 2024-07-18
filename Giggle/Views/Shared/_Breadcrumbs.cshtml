@@ -1,0 +1,16 @@
+﻿@using Giggle.Models.DomainModels
+@model BreadcrumbsModel
+
+
+@if (Model.Breadcrumbs != null)
+{
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            @foreach (var breadcrumb in Model.Breadcrumbs)
+            {
+                <li class="breadcrumb-item">@breadcrumb</li>
+            }
+        </ol>
+    </nav>
+}
+

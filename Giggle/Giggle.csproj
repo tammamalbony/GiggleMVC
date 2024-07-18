@@ -10,11 +10,16 @@
     <Folder Include="Helpers\" />
     <Folder Include="Migrations\" />
     <Folder Include="Middlewares\" />
-    <Folder Include="Models\DomainModels\" />
     <Folder Include="Models\DTOs\" />
     <Folder Include="Models\ViewModels\" />
     <Folder Include="Repositories\" />
     <Folder Include="Services\" />
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotNetEnv" Version="3.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>

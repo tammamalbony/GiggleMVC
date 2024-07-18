@@ -1,0 +1,44 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Csrf
+@functions
+{
+    public string GetCsrfToken()
+    {
+        return Csrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+ <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" content="@GetCsrfToken()" csrf-param="_csrf_token" method-param="_method" name="csrf-token">
+    <meta name="description" content="Giggle and Post Website" />
+    <meta property="og:title" content="Giggle Website" />
+    <meta property="og:url" content="https://www.Glitch-it.net/" />
+    <meta property="og:description" content="𝑷𝒓𝒐𝒈𝒓𝒂𝒎𝒎𝒊𝒏𝒈" />
+    <meta property="og:image" content="https://glitch-it.net/custom/img/bg.png" />
+
+    <title>@ViewData["Title"] - Giggle</title>
+
+    <link rel="icon" href="~/img/favicon.png" />
+    <link rel="apple-touch-icon" href="~/custom/img/apple-touch-icon.png" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" />
+    <link rel="stylesheet" href="~/vendor/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/vendor/bootstrap-icons/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/vendor/glightbox/css/glightbox.min.css" />
+    <link rel="stylesheet" href="~/vendor/swiper/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="~/vendor/sweetAlert2/sweetalert2.min.css" />
+
+    @if (Environment.GetEnvironmentVariable("ANIMATION_ENABLE")?.ToUpper() == "TRUE")
+    {
+        <link rel="stylesheet" href="~/vendor/aos/aos.css" />
+    }
+
+    @if (Environment.GetEnvironmentVariable("EDITOR_ENABLE")?.ToUpper() == "TRUE")
+    {
+        <link rel="stylesheet" href="~/vendor/summernote/summernote.min.css" />
+    }
+
+    <link rel="stylesheet" href="~/css/main.css" />
+    <link rel="stylesheet" href="~/css/custom.css" />
+    <link rel="manifest" href="/manifest.json" />
