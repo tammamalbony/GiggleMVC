@@ -1,109 +1,164 @@
-﻿ @if (TempData["Error"] != null)
- {
-        <script>
-        document.addEventListener('DOMContentLoaded', function () {
-                Swal.fire({
-                    title: 'Error!',
-                    text: '@TempData["Error"]',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-        });
-        </script>
- }
-      
+﻿@{
+	var animationEnabled = Environment.GetEnvironmentVariable("ANIMATION_ENABLE")?.ToUpper() == "TRUE";
+	var editorEnabled = Environment.GetEnvironmentVariable("EDITOR_ENABLE")?.ToUpper() == "TRUE";
+	var realTimeUpdate = Environment.GetEnvironmentVariable("REAL_TIME_UPDATE")?.ToUpper() == "TRUE";
+	var intervalTime = Environment.GetEnvironmentVariable("INTERVAL_TIME") ?? "5000";
+	var uploadDir = Environment.GetEnvironmentVariable("UPLOAD_DIR") ?? "uploads";
+}
+
+<script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+@if (animationEnabled)
+{
+	<script src="~/vendor/aos/aos.js"></script>
+}
+<script src="~/vendor/glightbox/js/glightbox.min.js"></script>
+<script src="~/vendor/purecounter/purecounter_vanilla.js"></script>
+<script src="~/vendor/swiper/swiper-bundle.min.js"></script>
+<script src="~/vendor/php-email-form/validate.js"></script>
+<script src="~/vendor/sweetAlert2/sweetalert2.all.min.js"></script>
+@if (editorEnabled)
+{
+	<script src="~/vendor/summernote/summernote.min.js"></script>
+}
+<script src="~/js/main.js"></script>
+
+
+@if (TempData["ErrorMessage"] != null)
+{
+	<script>
+		Swal.fire({
+			title: 'Error!',
+			text: '@TempData["ErrorMessage"]',
+			icon: 'error',
+			confirmButtonText: 'OK'
+		});
+	</script>
+}
+
+@if (animationEnabled)
+{
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			new PureCounter();
+			function aos_init() {
+				AOS.init({
+					duration: 10,
+					easing: 'ease-in-out',
+					once: true,
+					mirror: false
+				});
+			}
+			aos_init();
+		});
+	</script>
+}
+
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        if (document.getElementById('SearchInput')) {
-            let upload_dir = '@Environment.GetEnvironmentVariable("UPLOAD_DIR") ?? "uploads"';
-            let previousQuery = '';
-            let intervalId;
-            document.getElementById('SearchInput').addEventListener('input', function () {
-                var inputText = this.value;
-                if (inputText.length > 2) {
-                    document.getElementById('post-container').style.display = 'block';
-                    document.getElementById('main').style.display = 'none';
-                    if (intervalId) {
-                        clearInterval(intervalId);
-                    }
-                    searchFunction(inputText);
-                    intervalId = setInterval(function () {
-                        searchFunction(inputText, true);
-                    }, @Environment.GetEnvironmentVariable("INTERVAL_TIME") ?? 5000);
-                } else {
-                    document.getElementById('post-container').style.display = 'none';
-                    document.getElementById('main').style.display = 'block';
-                    if (intervalId) {
-                        clearInterval(intervalId);
-                    }
-                }
-            });
+	var clickableCards = document.querySelectorAll(".clickable-card");
+	clickableCards.forEach(function (card) {
+		card.addEventListener("click", function () {
+			var link = card.dataset.link;
+			if (link) {
+				window.location.href = link;
+			}
+		});
+	});
+</script>
+<script>
+	let previousQuery = '';
+	let intervalId;
+	document.getElementById('SearchInput').addEventListener('input', function () {
+		var inputText = this.value;
 
-            function setupClickableCards() {
-                var clickableCards = document.querySelectorAll(".clickable-card");
-                clickableCards.forEach(function (card) {
-                    card.addEventListener("click", function () {
-                        var link = card.dataset.link;
-                        if (link) {
-                            window.location.href = link;
-                        }
-                    });
-                });
-            }
+		if (inputText.length > 2) {
+			document.getElementById('post-container').style.display = 'block';
+			document.getElementById('main').style.display = 'none';
 
-            function searchFunction(query, any = false) {
-                if (query !== previousQuery || any == true) {
-                    console.log('Searching for:', query);
-                    fetchPosts(query);
-                    previousQuery = query;
-                }
-            }
+			if (intervalId) {
+				clearInterval(intervalId);
+			}
+			searchFunction(inputText);
 
-            function fetchPosts(query) {
-                $.ajax({
-                    url: '@Url.Action("RealTimePosts", "BlogPost")',
-                    method: 'GET',
-                    data: { query: query },
-                    dataType: 'json',
-                    success: function (data) {
-                        $('#post-container .row').html(renderPosts(data));
-                        setupClickableCards();
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        console.error('Error fetching posts:', textStatus, errorThrown);
-                        $('#post-container .row').html('<p>Error loading posts.</p>');
-                    }
-                });
-            }
+			var realTimeUpdate = @realTimeUpdate.ToString().ToLower();
+			var intervalTime = @intervalTime;
 
-            function renderPosts(posts) {
-                return posts.map(post => `
-                    <div class="col-md-4 col-sm-12 card-col-container mb-2" data-id="${post.id}">
-                        <div class="card mb-3">
-                            <div class="row g-0 position-relative">
-                                <img src="/${upload_dir}/${post.image}" class="card-img-top clickable-card" data-link="/BlogPost/View/${post.id}" alt="${post.title}">
-                                <div class="card-body">
-                                    <h5 class="card-title clickable-card" data-link="/BlogPost/View/${post.id}">${post.title}</h5>
-                                    <p class="card-text clickable-card" data-link="/BlogPost/View/${post.id}"><small>Author: ${post.username}</small></p>
-                                    <p class="card-text clickable-card" data-link="/BlogPost/View/${post.id}">${post.description}</p>
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <img class="category-icon img-fluid user_image " src="/${upload_dir}/${post.icon}"/>
-                                        <small class="text-muted">Category: ${post.category_name}</small>
-                                    </div>
-                                    <div class="d-flex justify-content-between clickable-card" data-link="/BlogPost/View/${post.id}">
-                                        <div><small>${new Date(post.created_at).toLocaleDateString()}</small></div>
-                                        <div><small>${new Date(post.created_at).toLocaleTimeString()}</small></div>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <small>Comments: ${post.comments_count}</small>
-                                        <small>Likes: ${post.likes_count}</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-    });
+			var intervalId = setInterval(function () {
+				searchFunction(inputText, realTimeUpdate === 'true');
+			}, intervalTime);
+		} else {
+			document.getElementById('post-container').style.display = 'none';
+			document.getElementById('main').style.display = 'block';
+
+			if (intervalId) {
+				clearInterval(intervalId);
+			}
+		}
+	});
+
+
+	function setupClickableCards() {
+		var clickableCards = document.querySelectorAll(".clickable-card");
+		clickableCards.forEach(function (card) {
+			card.addEventListener("click", function () {
+				var link = card.dataset.link;
+				if (link) {
+					window.location.href = link;
+				}
+			});
+		});
+	}
+
+	function searchFunction(query, any = false) {
+		if (query !== previousQuery || any) {
+			console.log('Searching for:', query);
+			fetchPosts(query);
+			previousQuery = query;
+		}
+	}
+
+	function fetchPosts(query) {
+		$.ajax({
+			url: '@Url.Action("RealTimePosts", "BlogPost")',
+			method: 'GET',
+			data: { query: query },
+			dataType: 'json',
+			success: function (data) {
+				$('#post-container .row').html(renderPosts(data));
+				setupClickableCards();
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				console.error('Error fetching posts:', textStatus, errorThrown);
+				$('#post-container .row').html('<p>Error loading posts.</p>');
+			}
+		});
+	}
+
+	function renderPosts(posts) {
+		return posts.map(post => `
+						<div class="col-md-4 col-sm-12 card-col-container mb-2" data-id="${post.id}">
+							<div class="card mb-3">
+								<div class="row g-0 position-relative">
+									<img src="/${uploadDir}/${post.image}" class="card-img-top clickable-card" data-link="/BlogPost/View/${post.id}" alt="${post.title}">
+									<div class="card-body">
+										<h5 class="card-title clickable-card" data-link="/BlogPost/View/${post.id}">${post.title}</h5>
+										<p class="card-text clickable-card" data-link="/BlogPost/View/${post.id}"><small>Author: ${post.username}</small></p>
+										<p class="card-text clickable-card" data-link="/BlogPost/View/${post.id}">${post.description}</p>
+										<div class="d-flex justify-content-between align-items-center mb-2">
+											<img class="category-icon img-fluid user_image" src="/${uploadDir}/${post.icon}" />
+											<small class="text-muted">Category: ${post.category_name}</small>
+										</div>
+										<div class="d-flex justify-content-between clickable-card" data-link="/BlogPost/View/${post.id}">
+											<div><small>${new Date(post.created_at).toLocaleDateString()}</small></div>
+											<div><small>${new Date(post.created_at).toLocaleTimeString()}</small></div>
+										</div>
+										<div class="d-flex justify-content-between">
+											<small>Comments: ${post.comments_count}</small>
+											<small>Likes: ${post.likes_count}</small>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					`).join('');
+	} 
 </script>

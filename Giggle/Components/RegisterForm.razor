@@ -1,0 +1,144 @@
+﻿@page "/signup"
+@using Giggle.Models.DomainModels
+@using Giggle.Helpers
+@using Giggle.Services
+@inject UserRepository UserRepository
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject IUserService UserService
+
+<div class="container controls_filters" style="margin-top: 100px;">
+    <div class="row">
+        <div class="col-12 text-center flex-column d-flex justify-content-center">
+            <div class="text-center">
+                <h2>Sign Up</h2>
+            </div>
+            <a class="btn btn-primary btnmain btnlight mt-3">Sign Up using <strong>Google</strong></a>
+            <div class="d-flex justify-content-between mt-5">
+                <hr class="mx-2" style="width: -webkit-fill-available;">
+                <p style="white-space: nowrap;">or sign up with your email</p>
+                <hr class="mx-2" style="width: -webkit-fill-available;">
+            </div>
+
+            <EditForm Model="registerHelper.RegisterModel" OnValidSubmit="HandleValidSubmit" class="justify-content-center align-items-center mt-5 needs-validation" novalidate>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="d-flex justify-content-between">
+                    <div class="mb-3 mx-2 w-50">
+                        <label for="firstName" class="form-label">First Name</label>
+                        <InputText id="firstName" @bind-Value="registerHelper.RegisterModel.FirstName" class="@($"form-control {registerHelper.FirstNameValidationClass}")" @oninput="registerHelper.ValidateFirstName" placeholder="Name" />
+                        <div class="invalid-feedback">
+                            @registerHelper.FirstNameErrorMessage
+                        </div>
+                    </div>
+                    <div class="mb-3 mx-2 w-50">
+                        <label for="lastName" class="form-label">Last Name</label>
+                        <InputText id="lastName" @bind-Value="registerHelper.RegisterModel.LastName" class="@($"form-control {registerHelper.LastNameValidationClass}")" @oninput="registerHelper.ValidateLastName" placeholder="Surname" />
+                        <div class="invalid-feedback">
+                            @registerHelper.LastNameErrorMessage
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <InputText id="username" @bind-Value="registerHelper.RegisterModel.Username" class="@($"form-control {registerHelper.UsernameValidationClass}")" @oninput="registerHelper.ValidateUsername" placeholder="Username" />
+                    <div class="invalid-feedback">
+                        @registerHelper.UsernameErrorMessage
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <InputText id="email" @bind-Value="registerHelper.RegisterModel.Email" class="@($"form-control {registerHelper.EmailValidationClass}")" @oninput="registerHelper.ValidateEmail" placeholder="Email Address" />
+                    <div class="invalid-feedback">
+                        @registerHelper.EmailErrorMessage
+                    </div>
+                </div>
+
+                <div class="mb-3 password-container">
+                    <label for="password" class="form-label">Password</label>
+                    <InputText id="password" @bind-Value="registerHelper.RegisterModel.Password" type="password" class="@($"form-control {registerHelper.PasswordValidationClass} password-control")" @oninput="registerHelper.ValidatePassword" placeholder="Password" />
+                    <div class="invalid-feedback">
+                        @registerHelper.PasswordErrorMessage
+                    </div>
+                    <div class="input-group-addon">
+                        <a class="btn-pass" @onclick="TogglePasswordVisibility" @ref="PasswordToggleRef">
+                            <img src="img/s1/eye.svg" alt="" class="eye-close" />
+                            <img src="img/s1/eyeopen.svg" alt="" class="eye-open d-none" />
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mb-3 password-container">
+                    <label for="passwordRepeat" class="form-label">Confirm Password</label>
+                    <InputText id="passwordRepeat" @bind-Value="registerHelper.RegisterModel.PasswordRepeat" type="password" class="@($"form-control {registerHelper.PasswordRepeatValidationClass} password-control")" @oninput="registerHelper.ValidatePasswordRepeat" placeholder="Repeat Password" />
+                    <div class="invalid-feedback">
+                        @registerHelper.PasswordRepeatErrorMessage
+                    </div>
+                    <div class="input-group-addon">
+                        <a class="btn-pass" @onclick="TogglePasswordRepeatVisibility" @ref="PasswordRepeatToggleRef">
+                            <img src="img/s1/eye.svg" alt="" class="eye-close" />
+                            <img src="img/s1/eyeopen.svg" alt="" class="eye-open d-none" />
+                        </a>
+                    </div>
+                </div>
+
+                <div class="form-check d-flex justify-content-start mt-2">
+                    <InputCheckbox id="terms" @bind-Value="registerHelper.RegisterModel.Terms" class="@($"form-check-input {registerHelper.TermsValidationClass}")" @onchange="registerHelper.ValidateTerms" />
+                    <label class="form-check-label mx-2" for="terms">
+                        <span style="white-space: nowrap;">By Signing Up I agree with </span>
+                        <a href="Conditions.html"><u style="white-space: nowrap;">Terms & Conditions</u></a>
+                    </label>
+                    <div class="invalid-feedback">
+                        @registerHelper.TermsErrorMessage
+                    </div>
+                </div>
+
+                <div class="row buttons">
+                    <button type="submit" class="btn btn-primary btnmain mt-3" @disabled="!registerHelper.IsFormValid">Sign Up</button>
+                </div>
+            </EditForm>
+
+            <p class="mt-5">
+                Already have an Account? <a href="/login"><u>Sign In</u></a>
+            </p>
+
+            <div class="d-flex justify-content-between">
+                <div>© 2024 Giggle.com</div>
+                <div class="d-flex justify-content-between textGM">
+                    <a href="Conditions.html" class="mx-2"><u class="">Terms and Conditions</u></a>
+                    <a href="Privacy.html" class="mx-1"><u class="">Privacy Policy</u></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private RegisterHelper registerHelper;
+
+    private ElementReference PasswordToggleRef;
+    private ElementReference PasswordRepeatToggleRef;
+
+    protected override void OnInitialized()
+    {
+        registerHelper = new RegisterHelper(UserRepository, JS, Navigation, UserService);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        await registerHelper.HandleValidSubmit("/success");
+    }
+
+    private async Task TogglePasswordVisibility()
+    {
+        await JS.InvokeVoidAsync("togglePasswordVisibility", PasswordToggleRef);
+    }
+
+    private async Task TogglePasswordRepeatVisibility()
+    {
+        await JS.InvokeVoidAsync("togglePasswordVisibility", PasswordRepeatToggleRef);
+    }
+}

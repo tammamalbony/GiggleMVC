@@ -217,8 +217,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function handleLoginClick(event) {
     event.preventDefault();
-    opensigninPopup("/index.php/site/login", "sign In")
+      opensigninPopup("/index.php/site/login", "sign In")
   }
  
-  
+    window.togglePasswordVisibility = function (element) {
+        const passwordInput = element.closest('.password-container').querySelector('.password-control');
+        const eyeOpen = element.querySelector('.eye-open');
+        const eyeClose = element.querySelector('.eye-close');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeOpen.classList.remove('d-none');
+            eyeClose.classList.add('d-none');
+        } else {
+            passwordInput.type = 'password';
+            eyeOpen.classList.add('d-none');
+            eyeClose.classList.remove('d-none');
+        }
+    };
 });

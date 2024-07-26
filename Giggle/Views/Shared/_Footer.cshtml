@@ -1,64 +1,45 @@
-﻿ <footer id="footer" class="footer mt-5 mb-0 mx-0">
-        <div class="container-fluid m-0 p-0 footerleft">
-            <div class="row m-0 p-0 footerright">
-                <div class="col-12 footer-links mt-5 text-center">
-                    <div>
-                         @if (ViewData["Breadcrumbs"] != null)
-                            {
-                                <partial name="_Breadcrumbs" viewData="new ViewDataDictionary(ViewData) { Model = ViewData["Breadcrumbs"] }" />
-                            }
-                        <img src="~/img/logo.png" alt="Giggle logo" class="img-fluid footerlogo" />
+﻿<footer id="footer" class="footer mt-5 mb-0 mx-0">
+    <div class="container-fluid m-0 p-0 footerleft">
+        <div class="row m-0 p-0 footerright">
+            <div class="col-12 footer-links mt-5 text-center">
+                <div>
+                    @if (ViewData["Breadcrumbs"] != null)
+                    {
+                        <partial name="_Breadcrumbs" viewData="new ViewDataDictionary(ViewData) { Model = ViewData[" Breadcrumbs"] }" />
+                    }
+                    <img src="~/img/logo.png" alt="Giggle logo" class="img-fluid footerlogo">
+                </div>
+                <div>
+                    <div class="social-links d-flex text-center my-3">
+                        <a href="#" class="twitter"><img src="~/img/s1/icon_x.svg" class="img-fluid"></a>
+                        <a href="#" class="youtube"><img src="~/img/s1/icon_youtube.svg" class="img-fluid"></a>
+                        <a href="#" class="telegram"><img src="~/img/s1/icon_telegram.svg" class="img-fluid"></a>
+                        <a href="#" class="email"><img src="~/img/s1/icon_email.svg" class="img-fluid"></a>
                     </div>
-                    <div>
-                        <div class="social-links d-flex text-center my-3">
-                            <a href="#" class="twitter"><img src="~/img/s1/icon_x.svg" class="img-fluid" /></a>
-                            <a href="#" class="youtube"><img src="~/img/s1/icon_youtube.svg" class="img-fluid" /></a>
-                            <a href="#" class="telegram"><img src="~/img/s1/icon_telegram.svg" class="img-fluid" /></a>
-                            <a href="#" class="email"><img src="~/img/s1/icon_email.svg" class="img-fluid" /></a>
-                        </div>
+                </div>
+                <div class="my-2">
+                    <h6>Download Our App to see all Posts and Giggle on your mobile</h6>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <img src="~/img/s1/button-app.svg" class="m-2" alt="app store download">
+                    <img src="~/img/s1/button-play.svg" alt="play store download" class="m-2">
+                </div>
+                <div class="container">
+                    <div class="copyright">
+                        &copy; <strong><span>2023</span></strong>. All Rights Reserved By <strong><span class="text-white">Giggle</span></strong>
                     </div>
-                    <div class="my-2">
-                        <h6>Download Our App to see all Posts and Giggle on your mobile</h6>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <img src="~/img/s1/button-app.svg" class="m-2" alt="app store download" />
-                        <img src="~/img/s1/button-play.svg" class="m-2" alt="play store download" />
-                    </div>
-                    <div class="container">
-                        <div class="copyright">
-                            &copy; <strong><span>2024</span></strong>. All Rights Reserved By <strong><span class="text-white">Giggle</span></strong>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center endfooter">
-                        <a href="Conditions.html" class="m-1"><u class="text-white footer-link">Terms and Conditions</u></a>
-                        <a href="#" class="m-1 text-white">|</a>
-                        <a href="Privacy.html" class="m-1"><u class="text-white footer-link">Privacy Policy</u></a>
-                        <a href="#" class="m-1 text-white">|</a>
-                        <a href="#" class="m-1"><u class="text-white footer-link">FAQ</u></a>
-                    </div>
+                </div>
+                <div class="d-flex justify-content-center endfooter">
+                    <a href="Conditions.html" class="m-1"><u class="text-white footer-link"> Terms and Conditions </u></a>
+                    <a href="#" class="m-1 text-white">|</a>
+                    <a href="Privacy.html" class="m-1"><u class="text-white footer-link"> Privacy Policy </u></a>
+                    <a href="#" class="m-1 text-white">|</a>
+                    <a href="#" class="m-1"><u class="text-white footer-link"> FAQ </u></a>
                 </div>
             </div>
         </div>
-    </footer>
+    </div>
+</footer>
+<a href="#" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
-    <a href="#" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-    <div id="preloader"></div>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="_framework/blazor.server.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-@if (Environment.GetEnvironmentVariable("ANIMATION_ENABLE")?.ToUpper() == "TRUE")
-{
-            <script src="~/vendor/aos/aos.js"></script>
-}
-    <script src="~/vendor/glightbox/js/glightbox.min.js"></script>
-    <script src="~/vendor/purecounter/purecounter_vanilla.js"></script>
-    <script src="~/vendor/swiper/swiper-bundle.min.js"></script>
-    <script src="~/vendor/php-email-form/validate.js"></script>
-    <script src="~/vendor/sweetAlert2/sweetalert2.all.min.js"></script>
-@if (Environment.GetEnvironmentVariable("EDITOR_ENABLE")?.ToUpper() == "TRUE")
-{
-            <script src="~/vendor/summernote/summernote.min.js"></script>
-}
-    <script src="~/js/main.js"></script>
+<div id="preloader"></div>

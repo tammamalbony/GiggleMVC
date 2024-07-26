@@ -8,5 +8,7 @@
 
     @(await Html.RenderComponentAsync
         <Giggle.Components.App>(RenderMode.ServerPrerendered,
-        new { Title = "Lucky Number Generator" }))
+        new { Title = "Test Blazor Components" }))
+    @(await Html.RenderComponentAsync
+        <Giggle.Components.TestHttpClient>(RenderMode.ServerPrerendered))
 </div>

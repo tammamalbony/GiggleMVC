@@ -1,7 +1,21 @@
-﻿<!DOCTYPE html>
+﻿@{
+    Layout = null;
+    var animationEnabled = Environment.GetEnvironmentVariable("ANIMATION_ENABLE")?.ToUpper() == "TRUE";
+    var editorEnabled = Environment.GetEnvironmentVariable("EDITOR_ENABLE")?.ToUpper() == "TRUE";
+    var realTimeSearch = Environment.GetEnvironmentVariable("REAL_TIME_SEARCH")?.ToUpper() == "TRUE";
+    var realTimeUpdate = Environment.GetEnvironmentVariable("REAL_TIME_UPDATE")?.ToUpper() == "TRUE";
+    var intervalTime = Environment.GetEnvironmentVariable("INTERVAL_TIME") ?? "5000";
+    var uploadDir = Environment.GetEnvironmentVariable("UPLOAD_DIR") ?? "uploads";
+
+    var baseUrl = "/";
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <partial name="_Header" />
+     <partial name="_Header" />
+    @RenderSection("Heads", required: false)
+    <base href="@(baseUrl)" />
 </head>
 <body class="section2-bg">
     <header id="header" class="header fixed-top d-flex align-items-center">
@@ -19,20 +33,26 @@
 
     <partial name="_Footer" />
     <partial name="_Main" />
-
+    <script src="_framework/blazor.server.js"></script>
+     @RenderSection("Scripts", required: false)
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            fetch('/api/error/check')
+            fetch('/api/error/error')
                 .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(error => {
-                            throw new Error(error.detail);
-                        });
-                    }
-                    return response.json();
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            throw new Error(data.detail || 'Unknown error occurred');
+                        }
+                        return data;
+                    });
                 })
                 .then(data => {
-                    console.log(data); // No errors
+                    console.log(data); // Log successful data response
+                    // Swal.fire({
+                    //     icon: 'success',
+                    //     title: 'Success',
+                    //     text: data.message,
+                    // });
                 })
                 .catch(error => {
                     Swal.fire({

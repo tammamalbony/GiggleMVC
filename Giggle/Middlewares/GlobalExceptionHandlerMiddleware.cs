@@ -1,5 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using System;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace Giggle.Middlewares
 {
@@ -41,5 +45,4 @@ namespace Giggle.Middlewares
             return context.Response.WriteAsync(JsonConvert.SerializeObject(response));
         }
     }
-
 }

@@ -103,3 +103,13 @@ Server-side rendering.
 Supports traditional web development paradigms.
 Ideal for scenarios where SEO is important, as HTML is fully rendered on the server before being sent to the client.
 Easy integration with existing ASP.NET MVC or Razor Pages projects.
+
+
+
+https://cryptotools.net/rsagen
+asymmetric
+
+
+1: Encode RSA keys in Base64
+[Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes((Get-Content -Raw -Path "private_key.pem"))) > private_key_base64.txt
+[Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes((Get-Content -Raw -Path "public_key.pem"))) > public_key_base64.txt

@@ -1,61 +1,73 @@
-﻿ <div class="container-fluid d-flex align-items-center justify-content-between">
-			<div id="real-time-posts">
-				<!-- The posts will be loaded at this div -->
-			</div>
-			<a asp-controller="Home" asp-action="Index" class="logo d-flex align-items-center me-auto me-lg-0">
-				<img src="~/img/logoB.png" alt="Giggle Logo" />
-			</a>
-			<nav id="navbar" class="navbar">
-				<ul>
-					<li><a asp-controller="Home" asp-action="Index" class="ActiveNavIteam">Home</a></li>
-			@if (User.Identity.IsAuthenticated)
-			{
-								<li><a asp-controller="BlogPost" asp-action="Index">Blog</a></li>
-				@if (User.Claims.FirstOrDefault(c => c.Type == "isVerified")?.Value == "true")
-				{
-											<li><a asp-controller="BlogPost" asp-action="MyPosts">My Posts</a></li>
-				}
-								<li class="dropdown">
-									<a href="#">
-										<img src="~/img/s1/u1.jpg" class="img-fluid user_image" alt="User Image" />
-										<span>@User.Identity.Name</span>
-									</a>
-									<ul>
-						@if (User.Claims.FirstOrDefault(c => c.Type == "isVerified")?.Value != "true")
-						{
-													<li><a asp-controller="User" asp-action="Verification"><img src="~/img/s1/i1.png" class="icon_image" alt="Verify">Verify Account</a></li>
-						}
-						@if (User.Claims.FirstOrDefault(c => c.Type == "isVerified")?.Value == "true")
-						{
-													<li><a asp-controller="BlogPost" asp-action="Admin"><img src="~/img/s1/i4.png" class="icon_image" alt="Manage Posts">Dashboard</a></li>
-													<li><a asp-controller="BlogPost" asp-action="Create"><img src="~/img/s1/i1.png" class="icon_image" alt="Create New Posts">Create New Post</a></li>
-						}
-										<li><a asp-controller="Account" asp-action="Logout"><img src="~/img/s1/i2.png" class="icon_image" alt="Logout">Logout (@User.Identity.Name)</a></li>
-									</ul>
-								</li>
-			}
-			else
-			{
-								<li><a asp-controller="Account" asp-action="Login">Login</a></li>
-								<li><a asp-controller="User" asp-action="Register">Register</a></li>
-			}
-				</ul>
-			</nav>
-					@if (Environment.GetEnvironmentVariable("REAL_TIME_SEARCH")?.ToUpper() == "TRUE")
-					{
-						<div class="input-group flex-nowrap SearchInput">
-							<input type="text" class="form-control" id="SearchInput" placeholder="Real-Time Search" />
-							<i class="bi bi-search textGM"></i>
-						</div>
-					}
-					@if (!User.Identity.IsAuthenticated)
-					{
-						<a class="btn-book-a-table d-none d-md-block" asp-controller="Account" asp-action="Login" id="loginLink">Login</a>
-					}
-					else
-					{
-						<a class="btn-book-a-table d-none d-md-block" asp-controller="Account" asp-action="Logout">Logout (@User.Identity.Name)</a>
-					}
-			<i class="mobile-nav-toggle mobile-nav-show bi bi-list"></i>
-			<i class="mobile-nav-toggle mobile-nav-hide d-none bi bi-x"></i>
-		</div>
+﻿@{
+    var realTimeSearch = Environment.GetEnvironmentVariable("REAL_TIME_SEARCH")?.ToUpper() == "TRUE";
+}
+<div class="container-fluid d-flex align-items-center justify-content-between">
+    <div id="real-time-posts">
+        <!-- The posts will be loaded at this div -->
+    </div>
+    <a asp-controller="Home" asp-action="Index" class="logo d-flex align-items-center me-auto me-lg-0">
+        <img src="~/img/logoB.png" alt="Giggle Logo">
+    </a>
+
+    <nav id="navbar" class="navbar">
+        <ul>
+            <li><a asp-controller="Home" asp-action="Index" class="ActiveNavIteam">Home</a></li>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <li><a asp-controller="BlogPost" asp-action="Index">Blog</a></li>
+                @if (User.Claims.FirstOrDefault(c => c.Type == "IsVerified")?.Value == "True")
+                {
+                    <li><a asp-controller="BlogPost" asp-action="MyPosts">My Posts</a></li>
+                }
+                <li class="dropdown">
+                    <a href="#">
+                        <img src="~/img/s1/u1.jpg" class="img-fluid user_image" alt="User Image">
+                        <span>@User.Identity.Name</span>
+                    </a>
+                    <ul>
+                        @if (User.Claims.FirstOrDefault(c => c.Type == "IsVerified")?.Value != "True")
+                        {
+                            <li><a asp-controller="User" asp-action="Verification"><img src="~/img/s1/i1.png" class="icon_image" alt="Verify">Verify Account</a></li>
+                        }
+                        @if (User.Claims.FirstOrDefault(c => c.Type == "IsVerified")?.Value == "True")
+                        {
+                            <li><a asp-controller="BlogPost" asp-action="Admin"><img src="~/img/s1/i4.png" class="icon_image" alt="Manage Posts">Dashboard</a></li>
+                            <li><a asp-controller="BlogPost" asp-action="Create"><img src="~/img/s1/i1.png" class="icon_image" alt="Create New Posts">Create New Post</a></li>
+                        }
+                        <li><a asp-controller="Account" asp-action="Logout"><img src="~/img/s1/i2.png" class="icon_image" alt="Logout">Logout (@User.Identity.Name)</a></li>
+                    </ul>
+                </li>
+                @if (!User.Identity.IsAuthenticated)
+                {
+                    <a class="btn-book-a-table d-block d-md-none w-50" asp-controller="Auth" asp-action="Login" id="loginLink">Login</a>
+                }
+                else
+                {
+                    <a class="btn-book-a-table d-block d-md-none w-50" asp-controller="Account" asp-action="Logout">Logout (@User.Identity.Name)</a>
+                }
+            }
+            else
+            {
+                <li><a asp-controller="Auth" asp-action="Login">Login</a></li>
+                <li><a asp-controller="Auth" asp-action="Register">Register</a></li>
+            }
+        </ul>
+    </nav>
+    @if (realTimeSearch)
+    {
+        <div class="input-group flex-nowrap SearchInput">
+            <input type="text" class="form-control" id="SearchInput" placeholder="Real-Time Search">
+            <i class="bi bi-search textGM"></i>
+        </div>
+    }
+    @if (!User.Identity.IsAuthenticated)
+    {
+        <a class="btn-book-a-table d-none d-md-block" asp-controller="Auth" asp-action="Login" id="loginLink">Login</a>
+    }
+    else
+    {
+        <a class="btn-book-a-table d-none d-md-block" asp-controller="Account" asp-action="Logout">Logout (@User.Identity.Name)</a>
+    }
+    <i class="mobile-nav-toggle mobile-nav-show bi bi-list"></i>
+    <i class="mobile-nav-toggle mobile-nav-hide d-none bi bi-x"></i>
+</div>

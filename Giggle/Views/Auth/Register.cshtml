@@ -1,0 +1,9 @@
+﻿@model Giggle.Models.DomainModels.LoginModel
+@{
+    ViewData["Title"] = "Sign Up";
+
+}
+@section Heads {
+
+}
+@(await Html.RenderComponentAsync<Giggle.Components.RegisterForm>(RenderMode.ServerPrerendered))

@@ -1,0 +1,23 @@
+﻿@page "/test-httpclient"
+@inject HttpClient Http
+@code {
+    private string testResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var rquestResult = await Http.GetStringAsync("https://jsonplaceholder.typicode.com/todos/1");
+            testResult = $"Success: {rquestResult}";
+        }
+        catch (Exception ex)
+        {
+            testResult = $"Error: {ex.Message}";
+        }
+    }
+}
+
+<div>
+    <h3>HTTP Client Test</h3>
+    <p>@testResult</p>
+</div>
