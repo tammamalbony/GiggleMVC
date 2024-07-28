@@ -8,9 +8,7 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="Middlewares\" />
     <Folder Include="Models\ViewModels\" />
-    <Folder Include="Configurations\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
@@ -19,6 +17,7 @@
     <PackageReference Include="DotNetEnv" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.0.0" />
     <PackageReference Include="MySql.Data" Version="9.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "Secure Actions";
+}
+
+<h1>Secure Actions</h1>
+
+<form method="get" action="@Url.Action("Admin", "Secure")">
+    <button type="submit">Admin Only</button>
+</form>
+
+<form method="get" action="@Url.Action("VerifiedUser", "Secure")">
+    <button type="submit">Verified User</button>
+</form>
+
+<form method="get" action="@Url.Action("Test", "Secure")">
+    <button type="submit">Test Access</button>
+</form>

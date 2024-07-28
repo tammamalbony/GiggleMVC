@@ -5,7 +5,7 @@ namespace Giggle.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ErrorController : ControllerBase
+    public class ErrorController : Controller
     {
         [Route("error")]
         public IActionResult HandleError()
@@ -46,6 +46,13 @@ namespace Giggle.Controllers
         {
             // Example of a method that may trigger an error
             throw new Exception("This is a test exception.");
+        }
+
+        [Route("Error/NotFound")]
+        public IActionResult NotFoundAction()
+        {
+            Response.StatusCode = 404;  // Set HTTP status code to 404
+            return View("NotFound");  // Ensure this matches the view's filename
         }
     }
 }

@@ -11,43 +11,32 @@ namespace Giggle.Services
 {
     public class AuthService
     {
-        private readonly UserRepository _userRepository;
+        private readonly IUserService _userService;
         private readonly IPasswordHasherServices _passwordHasher;
 
-        public AuthService(UserRepository userRepository, IPasswordHasherServices passwordHasher)
+        public AuthService(IUserService userService, IPasswordHasherServices passwordHasher)
         {
-            _userRepository = userRepository;
+            _userService = userService;
             _passwordHasher = passwordHasher;
         }
 
         public async Task<IdentityResult> RegisterUserAsync(RegisterModel model)
         {
-            if (await _userRepository.IsUsernameUniqueAsync(model.Username) && await _userRepository.IsEmailUniqueAsync(model.Email))
+            if (await _userService.IsUsernameUniqueAsync(model.Username) && await _userService.IsEmailUniqueAsync(model.Email))
             {
-                var user = new UserDto
-                {
-                    Email = model.Email,
-                    Password = _passwordHasher.HashPassword(model.Password),
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Username = model.Username,
-                    IsVerified = false,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    Terms = model.Terms
-                };
 
-                await _userRepository.CreateUserAsync(user);
+                await _userService.RegisterUserAsync(model);
                 // Send verification email logic here
                 return IdentityResult.Success;
             }
             return IdentityResult.Failed(new IdentityError { Description = "Username or Email already exists." });
         }
 
-        public async Task<UserDto?> ValidateUserAsync(LoginModel model)
+        public async Task<UserDto> ValidateUserAsync(LoginModel model)
         {
-            var user = await _userRepository.GetUserByUsernameAsync(model.Username);
-            if (user != null && _passwordHasher.VerifyPassword(user.Password, model.Password))
+            // Check if the user exists
+            var user = await _userService.GetUserByUsernameAsync(model.Username);
+            if (user != null && _passwordHasher.VerifyPassword( user.Password, model.Password) )
             {
                 return user;
             }

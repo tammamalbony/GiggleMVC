@@ -88,14 +88,70 @@ namespace Giggle.Repositories
         public async Task AddUserAsync(UserDto user)
         {
             const string sql = @"
-                INSERT INTO `user` (email, password, first_name, last_name, username, is_verified, created_at, updated_at, terms)
-                VALUES (@Email, @Password, @FirstName, @LastName, @Username, @IsVerified, @CreatedAt, @UpdatedAt, @Terms);
+                INSERT INTO `user` (email, password, first_name, last_name, username, is_verified, created_at, updated_at, terms,verification_token,role)
+                VALUES (@Email, @Password, @FirstName, @LastName, @Username, @IsVerified, @CreatedAt, @UpdatedAt, @Terms,@VerificationToken,@Role);
                 SELECT LAST_INSERT_ID();";
 
             using (var connection = _databaseService.CreateConnection())
             {
                 connection.Open();
                 await connection.ExecuteAsync(sql, user);
+            }
+        }
+
+        internal async Task<bool> UpdateUserAsync(UserDto userDto)
+        {
+            const string sql = @"
+        UPDATE `user` 
+        SET email = @Email, 
+            password = @Password, 
+            first_name = @FirstName, 
+            last_name = @LastName, 
+            username = @Username, 
+            is_verified = @IsVerified, 
+            updated_at = @UpdatedAt, 
+            terms = @Terms, 
+            role = @Role,
+            verification_token = @VerificationToken 
+        WHERE id = @Id;";
+
+            using (var connection = _databaseService.CreateConnection())
+            {
+                connection.Open();
+                var result = await connection.ExecuteAsync(sql, userDto);
+                return result > 0;
+            }
+        }
+
+
+        internal async Task<bool> IsEmailConfirmedAsync(int userId)
+        {
+            const string sql = "SELECT is_verified FROM `user` WHERE id = @UserId;";
+            using (var connection = _databaseService.CreateConnection())
+            {
+                connection.Open();
+                var isVerified = await connection.QuerySingleOrDefaultAsync<bool>(sql, new { UserId = userId });
+                return isVerified;
+            }
+        }
+
+        internal async Task SetEmailConfirmedAsync(int userId, bool confirmed)
+        {
+            const string sql = "UPDATE `user` SET is_verified = @IsVerified WHERE id = @UserId;";
+            using (var connection = _databaseService.CreateConnection())
+            {
+                connection.Open();
+                await connection.ExecuteAsync(sql, new { UserId = userId, IsVerified = confirmed });
+            }
+        }
+        internal async Task<bool> DeleteUserAsync(int userId)
+        {
+            const string sql = "DELETE FROM `user` WHERE id = @UserId;";
+            using (var connection = _databaseService.CreateConnection())
+            {
+                connection.Open();
+                var result = await connection.ExecuteAsync(sql, new { UserId = userId });
+                return result > 0;
             }
         }
     }

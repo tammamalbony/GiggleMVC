@@ -1,14 +1,16 @@
 ﻿using Giggle.Models.DomainModels;
-using Giggle.Models.Responses;
+using Giggle.Models.DTOs;
+using Giggle.Models.Results;
 
 namespace Giggle.Services
 {
     public interface IUserService
     {
-        Task<ServiceResult> RegisterUserAsync(RegisterModel model);
+        Task<ServiceResults> RegisterUserAsync(RegisterModel model);
         Task<bool> IsEmailUniqueAsync(string email);
         Task<bool> IsUsernameUniqueAsync(string username);
-        Task<ServiceResult> LoginUserAsync(LoginModel model);
-        Task<ServiceResult> LogoutUserAsync();
+        //Task<ServiceResults> LoginUserAsync(LoginModel model);
+        //Task<ServiceResults> LogoutUserAsync();
+        Task<UserDto?> GetUserByUsernameAsync(string username);
     }
 }

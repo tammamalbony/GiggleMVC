@@ -2,10 +2,11 @@
 @using Giggle.Models.DomainModels
 @using Giggle.Helpers
 @using Giggle.Services
-@inject UserRepository UserRepository
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 @inject IUserService UserService
+@inject ILogger<RegisterModel> Logger
+
 
 <div class="container controls_filters" style="margin-top: 100px;">
     <div class="row">
@@ -20,48 +21,48 @@
                 <hr class="mx-2" style="width: -webkit-fill-available;">
             </div>
 
-            <EditForm Model="registerHelper.RegisterModel" OnValidSubmit="HandleValidSubmit" class="justify-content-center align-items-center mt-5 needs-validation" novalidate>
+            <EditForm Model="registerHelper.Model" OnValidSubmit="HandleValidSubmit" class="justify-content-center align-items-center mt-5 needs-validation" novalidate>
                 <DataAnnotationsValidator />
                 <ValidationSummary />
 
                 <div class="d-flex justify-content-between">
                     <div class="mb-3 mx-2 w-50">
-                        <label for="firstName" class="form-label">First Name</label>
-                        <InputText id="firstName" @bind-Value="registerHelper.RegisterModel.FirstName" class="@($"form-control {registerHelper.FirstNameValidationClass}")" @oninput="registerHelper.ValidateFirstName" placeholder="Name" />
+                        <label for="firstName" class="form-label">@registerHelper.FirstName?.DisplayName</label>
+                        <InputText id="firstName" @bind-Value="registerHelper.Model.FirstName" class="@($"form-control {registerHelper.FirstName?.ValidationClass}")" @oninput="e => registerHelper?.FirstName?.Validate(e)" placeholder="Name" />
                         <div class="invalid-feedback">
-                            @registerHelper.FirstNameErrorMessage
+                            @registerHelper.FirstName?.ErrorMessage
                         </div>
                     </div>
                     <div class="mb-3 mx-2 w-50">
-                        <label for="lastName" class="form-label">Last Name</label>
-                        <InputText id="lastName" @bind-Value="registerHelper.RegisterModel.LastName" class="@($"form-control {registerHelper.LastNameValidationClass}")" @oninput="registerHelper.ValidateLastName" placeholder="Surname" />
+                        <label for="lastName" class="form-label">@registerHelper.LastName?.DisplayName</label>
+                        <InputText id="lastName" @bind-Value="registerHelper.Model.LastName" class="@($"form-control {registerHelper.LastName?.ValidationClass}")" @oninput="e => registerHelper?.LastName?.Validate(e)" placeholder="Surname" />
                         <div class="invalid-feedback">
-                            @registerHelper.LastNameErrorMessage
+                            @registerHelper.LastName?.ErrorMessage
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <InputText id="username" @bind-Value="registerHelper.RegisterModel.Username" class="@($"form-control {registerHelper.UsernameValidationClass}")" @oninput="registerHelper.ValidateUsername" placeholder="Username" />
+                    <label for="username" class="form-label">@registerHelper.Username?.DisplayName</label>
+                    <InputText id="username" @bind-Value="registerHelper.Model.Username" class="@($"form-control {registerHelper.Username?.ValidationClass}")" @oninput="e => registerHelper?.Username?.Validate(e)" placeholder="Username" />
                     <div class="invalid-feedback">
-                        @registerHelper.UsernameErrorMessage
+                        @registerHelper.Username?.ErrorMessage
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="email" class="form-label">Email address</label>
-                    <InputText id="email" @bind-Value="registerHelper.RegisterModel.Email" class="@($"form-control {registerHelper.EmailValidationClass}")" @oninput="registerHelper.ValidateEmail" placeholder="Email Address" />
+                    <label for="email" class="form-label">@registerHelper.Email?.DisplayName</label>
+                    <InputText id="email" @bind-Value="registerHelper.Model.Email" class="@($"form-control {registerHelper.Email?.ValidationClass}")" @oninput="e => registerHelper?.Email?.Validate(e)" placeholder="Email Address" />
                     <div class="invalid-feedback">
-                        @registerHelper.EmailErrorMessage
+                        @registerHelper.Email?.ErrorMessage
                     </div>
                 </div>
 
                 <div class="mb-3 password-container">
-                    <label for="password" class="form-label">Password</label>
-                    <InputText id="password" @bind-Value="registerHelper.RegisterModel.Password" type="password" class="@($"form-control {registerHelper.PasswordValidationClass} password-control")" @oninput="registerHelper.ValidatePassword" placeholder="Password" />
+                    <label for="password" class="form-label">@registerHelper.Password?.DisplayName</label>
+                    <InputText id="password" @bind-Value="registerHelper.Model.Password" type="password" class="@($"form-control {registerHelper.Password?.ValidationClass} password-control")" @oninput="e => registerHelper?.Password?.Validate(e)" placeholder="Password" />
                     <div class="invalid-feedback">
-                        @registerHelper.PasswordErrorMessage
+                        @registerHelper.Password?.ErrorMessage
                     </div>
                     <div class="input-group-addon">
                         <a class="btn-pass" @onclick="TogglePasswordVisibility" @ref="PasswordToggleRef">
@@ -72,10 +73,10 @@
                 </div>
 
                 <div class="mb-3 password-container">
-                    <label for="passwordRepeat" class="form-label">Confirm Password</label>
-                    <InputText id="passwordRepeat" @bind-Value="registerHelper.RegisterModel.PasswordRepeat" type="password" class="@($"form-control {registerHelper.PasswordRepeatValidationClass} password-control")" @oninput="registerHelper.ValidatePasswordRepeat" placeholder="Repeat Password" />
+                    <label for="passwordRepeat" class="form-label">@registerHelper.PasswordRepeat?.DisplayName</label>
+                    <InputText id="passwordRepeat" @bind-Value="registerHelper.Model.PasswordRepeat" type="password" class="@($"form-control {registerHelper.PasswordRepeat?.ValidationClass} password-control")" @oninput="e => registerHelper?.PasswordRepeat?.Validate(e)" placeholder="Repeat Password" />
                     <div class="invalid-feedback">
-                        @registerHelper.PasswordRepeatErrorMessage
+                        @registerHelper.PasswordRepeat?.ErrorMessage
                     </div>
                     <div class="input-group-addon">
                         <a class="btn-pass" @onclick="TogglePasswordRepeatVisibility" @ref="PasswordRepeatToggleRef">
@@ -86,18 +87,27 @@
                 </div>
 
                 <div class="form-check d-flex justify-content-start mt-2">
-                    <InputCheckbox id="terms" @bind-Value="registerHelper.RegisterModel.Terms" class="@($"form-check-input {registerHelper.TermsValidationClass}")" @onchange="registerHelper.ValidateTerms" />
+                    <InputCheckbox id="terms" @bind-Value="registerHelper.Model.Terms" class="@($"form-check-input {registerHelper.Terms?.ValidationClass}")" @oninput="e => registerHelper.Terms?.Validate(e)" />
                     <label class="form-check-label mx-2" for="terms">
                         <span style="white-space: nowrap;">By Signing Up I agree with </span>
                         <a href="Conditions.html"><u style="white-space: nowrap;">Terms & Conditions</u></a>
                     </label>
                     <div class="invalid-feedback">
-                        @registerHelper.TermsErrorMessage
+                        @registerHelper.Terms?.ErrorMessage
                     </div>
                 </div>
 
                 <div class="row buttons">
-                    <button type="submit" class="btn btn-primary btnmain mt-3" @disabled="!registerHelper.IsFormValid">Sign Up</button>
+                    <button type="submit" class="btn btn-primary btnmain mt-3" disabled="@(!registerHelper.CanSubmit)">
+                        @if (registerHelper?.IsSubmitting ?? false)
+                        {
+                            <span><i class="fa fa-spinner fa-spin"></i> Submitting...</span>
+                        }
+                        else
+                        {
+                            <span>Sign Up</span>
+                        }
+                    </button>
                 </div>
             </EditForm>
 
@@ -124,12 +134,13 @@
 
     protected override void OnInitialized()
     {
-        registerHelper = new RegisterHelper(UserRepository, JS, Navigation, UserService);
+        registerHelper = new RegisterHelper(JS, Navigation, UserService, Logger, updateUI);
+        registerHelper.Initialize();
     }
 
     private async Task HandleValidSubmit()
     {
-        await registerHelper.HandleValidSubmit("/success");
+        await registerHelper.SubmitLogic();
     }
 
     private async Task TogglePasswordVisibility()
@@ -140,5 +151,13 @@
     private async Task TogglePasswordRepeatVisibility()
     {
         await JS.InvokeVoidAsync("togglePasswordVisibility", PasswordRepeatToggleRef);
+    }
+
+    private async Task updateUI()
+    {
+        await InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
     }
 }

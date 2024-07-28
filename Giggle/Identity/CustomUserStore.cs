@@ -8,7 +8,7 @@ using Giggle.Models.DTOs;
 
 namespace Giggle.Identity
 {
-    public class CustomUserStore : IUserStore<IdentityUser>, IUserPasswordStore<IdentityUser>
+    public class CustomUserStore : IUserStore<IdentityUser>, IUserPasswordStore<IdentityUser>, IUserEmailStore<IdentityUser>
     {
         private readonly UserRepository _userRepository;
 
@@ -109,6 +109,59 @@ namespace Giggle.Identity
         public void Dispose()
         {
             // Nothing to dispose
+        }
+
+        public Task SetEmailAsync(IdentityUser user, string email, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            user.Email = email;
+            return Task.CompletedTask;
+        }
+
+        public Task<string> GetEmailAsync(IdentityUser user, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(user.Email);
+        }
+
+        public Task<bool> GetEmailConfirmedAsync(IdentityUser user, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            // You need to decide how to store this information; here it's assumed it's part of UserDto
+            var isEmailConfirmed = _userRepository.IsEmailConfirmedAsync(int.Parse(user.Id));
+            return isEmailConfirmed;
+        }
+
+        public Task SetEmailConfirmedAsync(IdentityUser user, bool confirmed, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return _userRepository.SetEmailConfirmedAsync(int.Parse(user.Id), confirmed);
+        }
+
+        public async Task<IdentityUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var userDto = await _userRepository.GetUserByEmailAsync(normalizedEmail);
+            if (userDto == null)
+                return null;
+
+            return new IdentityUser
+            {
+                Id = userDto.Id.ToString(),
+                Email = userDto.Email,
+                UserName = userDto.Username,
+                PasswordHash = userDto.Password
+            };
+        }
+
+        public Task<string> GetNormalizedEmailAsync(IdentityUser user, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(user.Email?.ToUpperInvariant());
+        }
+
+        public Task SetNormalizedEmailAsync(IdentityUser user, string normalizedEmail, CancellationToken cancellationToken)
+        {
+            user.Email = normalizedEmail?.ToUpperInvariant();
+            return Task.CompletedTask;
         }
     }
 }

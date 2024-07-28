@@ -1,171 +1,79 @@
-﻿using Giggle.Models.DomainModels;
-using Giggle.Repositories;
-using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
-using System.Timers;
+﻿using Giggle.Configurations;
+using Giggle.Exceptions;
+using Giggle.Models.DomainModels;
+using Giggle.Providers;
 using Giggle.Services;
-using Microsoft.AspNetCore.Components.Web;
+using Giggle.Validators;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
+using Microsoft.JSInterop;
+using System;
+using System.Threading.Tasks;
 
 namespace Giggle.Helpers
 {
-    public class RegisterHelper
+    public class RegisterHelper : BaseHelper<RegisterModel>
     {
-        private readonly UserRepository _userRepository;
-        private readonly IJSRuntime _jsRuntime;
-        private readonly NavigationManager _navigation;
-        private readonly IUserService _userService;
-        private System.Timers.Timer _debounceTimer;
+        protected readonly IUserService _userService;
 
-        public RegisterModel RegisterModel { get; private set; } = new RegisterModel();
+        private bool isIntialized { get; set; }
+        public FieldValidator<RegisterModel>? FirstName { get; private set; }
+        public FieldValidator<RegisterModel>? LastName { get; private set; }
+        public FieldValidator<RegisterModel>? Username { get; private set; }
+        public FieldValidator<RegisterModel>? Email { get; private set; }
+        public FieldValidator<RegisterModel>? Password { get; private set; }
+        public FieldValidator<RegisterModel>? PasswordRepeat { get; private set; }
+        public FieldValidator<RegisterModel>? Terms { get; private set; }
 
-        public string FirstNameValidationClass => FirstNameErrorMessage == null ? "" : !string.IsNullOrEmpty(FirstNameErrorMessage) ? "is-invalid" : "is-valid";
-        public string LastNameValidationClass => LastNameErrorMessage == null ? "" : !string.IsNullOrEmpty(LastNameErrorMessage) ? "is-invalid" : "is-valid";
-        public string UsernameValidationClass => UsernameErrorMessage == null ? "" : !string.IsNullOrEmpty(UsernameErrorMessage) ? "is-invalid" : "is-valid";
-        public string EmailValidationClass => EmailErrorMessage == null ? "" : !string.IsNullOrEmpty(EmailErrorMessage) ? "is-invalid" : "is-valid";
-        public string PasswordValidationClass => PasswordErrorMessage == null ? "" : !string.IsNullOrEmpty(PasswordErrorMessage) ? "is-invalid" : "is-valid";
-        public string PasswordRepeatValidationClass => PasswordRepeatErrorMessage == null ? "" : !string.IsNullOrEmpty(PasswordRepeatErrorMessage) ? "is-invalid" : "is-valid";
-        public string TermsValidationClass => TermsErrorMessage == null ? "" : !string.IsNullOrEmpty(TermsErrorMessage) ? "is-invalid" : "is-valid";
 
-        public string FirstNameErrorMessage { get; private set; }
-        public string LastNameErrorMessage { get; private set; }
-        public string UsernameErrorMessage { get; private set; }
-        public string EmailErrorMessage { get; private set; }
-        public string PasswordErrorMessage { get; private set; }
-        public string PasswordRepeatErrorMessage { get; private set; }
-        public string TermsErrorMessage { get; private set; }
-
-        public bool IsFormValid => string.IsNullOrEmpty(FirstNameErrorMessage) && string.IsNullOrEmpty(LastNameErrorMessage) &&
-                                   string.IsNullOrEmpty(UsernameErrorMessage) && string.IsNullOrEmpty(EmailErrorMessage) &&
-                                   string.IsNullOrEmpty(PasswordErrorMessage) && string.IsNullOrEmpty(PasswordRepeatErrorMessage) &&
-                                   string.IsNullOrEmpty(TermsErrorMessage);
-
-        public RegisterHelper(UserRepository userRepository, IJSRuntime jsRuntime, NavigationManager navigation, IUserService userService)
+        public RegisterHelper(IJSRuntime jsRuntime, NavigationManager navigation, IUserService userService, ILogger<RegisterModel> logger, Func<Task> updateCallBack)
+            : base(jsRuntime, navigation, logger, updateCallBack)
         {
-            _userRepository = userRepository;
-            _jsRuntime = jsRuntime;
-            _navigation = navigation;
             _userService = userService;
         }
 
-        private void SetDebounceTimer(Func<Task> validationFunc)
+        public override void Initialize()
         {
-            _debounceTimer?.Stop();
-            _debounceTimer = new System.Timers.Timer(2000) { AutoReset = false };
-            _debounceTimer.Elapsed += async (sender, e) => await validationFunc();
-            _debounceTimer.Start();
-        }
-
-        public void ValidateFirstName(ChangeEventArgs e)
-        {
-            var value = e.Value?.ToString();
-            if (string.IsNullOrEmpty(value) || value.Length < 2)
+            if (!isIntialized)
             {
-                FirstNameErrorMessage = "First name must be at least 2 characters long";
-            }
-            else
-            {
-                FirstNameErrorMessage = null;
+                FirstName = CreateValidator(nameof(RegisterModel.FirstName), PropertyType.String, _userService);
+                LastName = CreateValidator(nameof(RegisterModel.LastName), PropertyType.String, _userService);
+                Username = CreateValidator(nameof(RegisterModel.Username), PropertyType.String, _userService);
+                Email = CreateValidator(nameof(RegisterModel.Email), PropertyType.String, _userService);
+                Password = CreateValidator(nameof(RegisterModel.Password), PropertyType.String, _userService);
+                PasswordRepeat = CreateValidator(nameof(RegisterModel.PasswordRepeat), PropertyType.String, _userService);
+                Terms = CreateValidator(nameof(RegisterModel.Terms), PropertyType.Bool, _userService);
+                isIntialized = true;
             }
         }
 
-        public void ValidateLastName(ChangeEventArgs e)
+        public override async Task SubmitLogic()
         {
-            var value = e.Value?.ToString();
-            if (string.IsNullOrEmpty(value) || value.Length < 2)
+            try
             {
-                LastNameErrorMessage = "Last name must be at least 2 characters long";
+                var result = await _userService.RegisterUserAsync(Model);
+                SweetAlertType alertType = result.Success ? SweetAlertType.Success : SweetAlertType.Error;
+                string title = result.Success ? "Success!" : "Error!";
+                string message = result.Success ? "Registration successful." : $"Registration failed: {result.Message}";
+                await _jsRuntime.InvokeVoidAsync("showCustomAlert", alertType.ToString().ToLower(), title, message, "/Auth/login");
             }
-            else
+            catch (Exception ex)
             {
-                LastNameErrorMessage = null;
+                SweetAlertType alertType =  SweetAlertType.Error;
+                string title = "Error!";
+                string message = $"Registration failed: {ex.Message}";
+                await _jsRuntime.InvokeVoidAsync("showCustomAlert", alertType.ToString().ToLower(), title, message);
             }
+           
         }
 
-        public void ValidatePassword(ChangeEventArgs e)
-        {
-            var value = e.Value?.ToString();
-            if (string.IsNullOrEmpty(value) || !new RegularExpressionAttribute(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$").IsValid(value))
-            {
-                PasswordErrorMessage = "Password must be at least 8 characters and include at least one uppercase letter, one lowercase letter, one number, and one special character.";
-            }
-            else
-            {
-                PasswordErrorMessage = null;
-            }
-        }
-
-        public void ValidatePasswordRepeat(ChangeEventArgs e)
-        {
-            var value = e.Value?.ToString();
-            if (value != RegisterModel.Password)
-            {
-                PasswordRepeatErrorMessage = "Passwords do not match";
-            }
-            else
-            {
-                PasswordRepeatErrorMessage = null;
-            }
-        }
-
-        public void ValidateTerms(ChangeEventArgs e)
-        {
-            var value = (bool)e.Value;
-            TermsErrorMessage = !value ? "You must accept the terms and conditions" : null;
-        }
-
-        public void ValidateUsername(ChangeEventArgs e)
-        {
-            SetDebounceTimer(async () =>
-            {
-                var value = e.Value?.ToString();
-                if (string.IsNullOrEmpty(value) || value.Length < 3)
-                {
-                    UsernameErrorMessage = "Username must be at least 3 characters long";
-                }
-                else if (!await _userRepository.IsUsernameUniqueAsync(value))
-                {
-                    UsernameErrorMessage = "Username is already taken";
-                }
-                else
-                {
-                    UsernameErrorMessage = null;
-                }
-            });
-        }
-
-        public void ValidateEmail(ChangeEventArgs e)
-        {
-            SetDebounceTimer(async () =>
-            {
-                var value = e.Value?.ToString();
-                if (string.IsNullOrEmpty(value) || !new EmailAddressAttribute().IsValid(value))
-                {
-                    EmailErrorMessage = "Email is not a valid email address";
-                }
-                else if (!await _userRepository.IsEmailUniqueAsync(value))
-                {
-                    EmailErrorMessage = "Email is already taken";
-                }
-                else
-                {
-                    EmailErrorMessage = null;
-                }
-            });
-        }
-
-        public async Task HandleValidSubmit(string successUrl)
-        {
-            var result = await _userService.RegisterUserAsync(RegisterModel);
-            if (result.Success)
-            {
-                _navigation.NavigateTo(successUrl);
-            }
-            else
-            {
-                await _jsRuntime.InvokeVoidAsync("alert", $"Registration failed: {result.ErrorMessage}");
-            }
-        }
+        public override bool IsFormValid =>
+           (FirstName?.IsValid ?? false) &&
+           (LastName?.IsValid ?? false) &&
+           (Username?.IsValid ?? false) &&
+           (Email?.IsValid ?? false) &&
+           (Password?.IsValid ?? false) &&
+           (PasswordRepeat?.IsValid ?? false) &&
+           (Terms?.IsValid ?? false);
     }
 }

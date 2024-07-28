@@ -234,4 +234,20 @@ document.addEventListener('DOMContentLoaded', () => {
             eyeClose.classList.remove('d-none');
         }
     };
+
+    
 });
+
+function showCustomAlert(type, title, message, redirectUrl = "") {
+    console.log("showCustomAlert function is loaded and called!");
+    Swal.fire({
+        title: title,
+        text: message,
+        icon: type,
+        confirmButtonText: 'OK'
+    }).then((result) => {
+        if (result.isConfirmed && redirectUrl) {
+            window.location.href = redirectUrl;
+        }
+    });
+}

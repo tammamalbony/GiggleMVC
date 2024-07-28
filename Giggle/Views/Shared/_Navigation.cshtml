@@ -27,14 +27,14 @@
                     <ul>
                         @if (User.Claims.FirstOrDefault(c => c.Type == "IsVerified")?.Value != "True")
                         {
-                            <li><a asp-controller="User" asp-action="Verification"><img src="~/img/s1/i1.png" class="icon_image" alt="Verify">Verify Account</a></li>
+                            <li><a asp-controller="User" asp-action="Verification"><img src="~/img/s1/i1.png" class="icon_image" alt="Verify">Verify auth</a></li>
                         }
                         @if (User.Claims.FirstOrDefault(c => c.Type == "IsVerified")?.Value == "True")
                         {
                             <li><a asp-controller="BlogPost" asp-action="Admin"><img src="~/img/s1/i4.png" class="icon_image" alt="Manage Posts">Dashboard</a></li>
                             <li><a asp-controller="BlogPost" asp-action="Create"><img src="~/img/s1/i1.png" class="icon_image" alt="Create New Posts">Create New Post</a></li>
                         }
-                        <li><a asp-controller="Account" asp-action="Logout"><img src="~/img/s1/i2.png" class="icon_image" alt="Logout">Logout (@User.Identity.Name)</a></li>
+                        <li><a asp-controller="auth" asp-action="Logout"><img src="~/img/s1/i2.png" class="icon_image" alt="Logout">Logout (@User.Identity.Name)</a></li>
                     </ul>
                 </li>
                 @if (!User.Identity.IsAuthenticated)
@@ -43,7 +43,7 @@
                 }
                 else
                 {
-                    <a class="btn-book-a-table d-block d-md-none w-50" asp-controller="Account" asp-action="Logout">Logout (@User.Identity.Name)</a>
+                    <a class="btn-book-a-table d-block d-md-none w-50" asp-controller="auth" asp-action="Logout">Logout (@User.Identity.Name)</a>
                 }
             }
             else
@@ -66,7 +66,7 @@
     }
     else
     {
-        <a class="btn-book-a-table d-none d-md-block" asp-controller="Account" asp-action="Logout">Logout (@User.Identity.Name)</a>
+        <a class="btn-book-a-table d-none d-md-block" asp-controller="auth" asp-action="Logout">Logout (@User.Identity.Name)</a>
     }
     <i class="mobile-nav-toggle mobile-nav-show bi bi-list"></i>
     <i class="mobile-nav-toggle mobile-nav-hide d-none bi bi-x"></i>

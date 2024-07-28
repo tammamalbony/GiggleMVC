@@ -6,7 +6,7 @@ using Giggle.Middlewares;
 var builder = WebApplication.CreateBuilder(args);
 
 Env.Load();
-
+builder.Services.AddHttpContextAccessor();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
@@ -25,7 +25,22 @@ JwtHelper.ConfigureJwtAuthentication(builder.Services, configManager);
 // Configure Identity using the helper method
 builder.Services.ConfigureIdentity();
 
-builder.Services.AddLogging();
+// Configure logging
+builder.Services.AddLogging(loggingBuilder => {
+    loggingBuilder.AddConsole();
+    loggingBuilder.AddDebug();
+});
+//CORS settings allow credentials and headers necessary for authentication
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecific", builder =>
+    {
+        builder.WithOrigins(Environment.GetEnvironmentVariable("APP_ORGINE"))
+               .AllowCredentials()
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -37,8 +52,10 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+    app.UseMiddleware<NotFoundMiddleware>();
     app.UseExceptionHandler("/api/error/error");
     app.UseHsts();
+    app.UseStatusCodePagesWithReExecute("/Error/NotFound");
 }
 
 app.UseHttpsRedirection();
@@ -50,6 +67,41 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 
+if (Environment.GetEnvironmentVariable("APP_DEBUG") == "TRUE")
+{
+    app.Use(async (context, next) =>
+    {
+        var user = context.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            var claims = user.Claims;
+            foreach (var claim in claims)
+            {
+                Console.WriteLine($"Claim: {claim.Type} - {claim.Value}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("User is not authenticated");
+        }
+        await next();
+    });
+
+}
+//else
+//{
+//    app.Use(async (context, next) =>
+//    {
+//        if (!context.User.Identity.IsAuthenticated)
+//        {
+//            context.Response.Redirect("/auth/login");
+//        }
+//        else
+//        {
+//            await next();
+//        }
+//    });
+//}
 
 // Map routes for controllers and Razor pages
 app.MapControllerRoute(

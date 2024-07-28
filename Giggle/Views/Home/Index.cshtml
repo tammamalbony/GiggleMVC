@@ -1,10 +1,41 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-
+@using Microsoft.AspNetCore.Authorization
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var user = HttpContextAccessor.HttpContext.User;
+    var isAuthenticated = user?.Identity?.IsAuthenticated ?? false;
+    var isVerified = user?.Claims?.FirstOrDefault(c => c.Type == "IsVerified")?.Value == "true";
+}
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+    <div>
+        
+        @if (isAuthenticated)
+        {
+            <h1>Hello, @User.Identity.Name!</h1>
+        }
+        @if (User.Identity.IsAuthenticated)
+        {
+            <p>You are logged in. Here are some user-specific options:</p>
+            <ul>
+                @if (User.IsInRole("Admin"))
+                {
+                    <li><a href="/admin/dashboard">Admin Dashboard</a></li>
+                }
+                @if (User.IsInRole("User"))
+                {
+                    <li><a href="/user/profile">Your Profile</a></li>
+                }
+                <li><a href="/account/logout">Logout</a></li>
+            </ul>
+        }
+        else
+        {
+            <p>You are not logged in. <a href="/auth/login">Click here to login</a> or <a href="/auth/register">register a new account</a>.</p>
+        }
+    </div>
 
     @(await Html.RenderComponentAsync
         <Giggle.Components.App>(RenderMode.ServerPrerendered,

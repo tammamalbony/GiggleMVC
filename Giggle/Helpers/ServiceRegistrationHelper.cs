@@ -15,6 +15,11 @@ namespace Giggle.Helpers
             services.AddSingleton(configManager);
 
 
+            // Register your custom helpers
+            services.AddLogging(configure => configure.AddConsole())
+                          .AddTransient(typeof(Logger<>));
+
+
             // Register your custom services
             services.AddTransient<TokenService>();
             services.AddScoped<AuthService>();
@@ -27,9 +32,9 @@ namespace Giggle.Helpers
             services.AddTransient<RoleRepository>();
 
             // Register Identity services with the custom user store
-            services.AddScoped<IUserStore<IdentityUser>, CustomUserStore>();
-            services.AddScoped<IUserPasswordStore<IdentityUser>, CustomUserStore>();
-            services.AddScoped<IRoleStore<IdentityRole>, CustomRoleStore>();
+            //services.AddScoped<IUserStore<IdentityUser>, CustomUserStore>();
+            //services.AddScoped<IUserPasswordStore<IdentityUser>, CustomUserStore>();
+            //services.AddScoped<IRoleStore<IdentityRole>, CustomRoleStore>();
 
         }
     }
